@@ -7,8 +7,10 @@
     "dev": "vite",
     "dev:desktop": "tauri dev",
     "build": "tsc -b && vite build",
+    "build:web": "tsc -b && vite build --base / --outDir ../dist --emptyOutDir",
     "lint": "eslint .",
     "preview": "vite preview",
+    "preview:web": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
     "tauri": "tauri"
   },
   "dependencies": {

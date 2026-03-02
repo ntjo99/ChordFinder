@@ -8,7 +8,7 @@ export const STANDARD_TUNING_PITCH_CLASSES: readonly PitchClass[] = Object.freez
 ]);
 
 export const MVP_MIN_FRET = 0;
-export const MVP_MAX_FRET = 17;
+export const MVP_MAX_FRET = 22;
 
 export interface FretboardCell {
   stringIndex: number;

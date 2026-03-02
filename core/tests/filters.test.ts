@@ -12,9 +12,7 @@ describe("computeAllowedPitchClasses", () => {
       },
       chord: {
         rootPitchClass: 7 as const,
-        quality: "major" as const,
-        extensions: [],
-        alterations: [],
+        intervals: ["1", "3", "5"] as const,
       },
     };
 
@@ -26,9 +24,7 @@ describe("computeAllowedPitchClasses", () => {
       ...createDefaultAppState(),
       chord: {
         rootPitchClass: 7 as const,
-        quality: "major" as const,
-        extensions: [],
-        alterations: [],
+        intervals: ["1", "3", "5"] as const,
       },
       excludeIntervals: ["3"] as const,
     };
@@ -45,9 +41,7 @@ describe("computeAllowedPitchClasses", () => {
       },
       chord: {
         rootPitchClass: 4 as const,
-        quality: "minor" as const,
-        extensions: [],
-        alterations: [],
+        intervals: ["1", "b3", "5"] as const,
       },
       includeIntervals: ["3"] as const,
     };
@@ -60,9 +54,7 @@ describe("computeAllowedPitchClasses", () => {
       ...createDefaultAppState(),
       chord: {
         rootPitchClass: 10 as const,
-        quality: "major" as const,
-        extensions: [],
-        alterations: [],
+        intervals: ["1", "3", "5"] as const,
       },
     };
 

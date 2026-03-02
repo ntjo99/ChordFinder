@@ -25,6 +25,34 @@ describe("chords", () => {
     ).toEqual([0, 4, 7, 10, 2, 5, 9]);
   });
 
+  it("treats extension 7 as a major seventh add", () => {
+    expect(
+      generateChordIntervals("major", {
+        extensions: ["7"],
+      }),
+    ).toEqual(["1", "3", "5", "7"]);
+
+    expect(
+      generateChordPitchClasses(0, "major", {
+        extensions: ["7"],
+      }),
+    ).toEqual([0, 4, 7, 11]);
+  });
+
+  it("supports flat-seven add-ons as an extension", () => {
+    expect(
+      generateChordIntervals("major", {
+        extensions: ["b7"],
+      }),
+    ).toEqual(["1", "3", "5", "b7"]);
+
+    expect(
+      generateChordPitchClasses(0, "sus4", {
+        extensions: ["b7"],
+      }),
+    ).toEqual([0, 5, 7, 10]);
+  });
+
   it("replaces matching natural extensions when alterations are applied", () => {
     expect(
       generateChordIntervals("major", {

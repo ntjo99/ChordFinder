@@ -17,7 +17,7 @@ export function VisualLegend() {
         </div>
         <div className="legend-item">
           <span className="legend-swatch muted" />
-          De-emphasized tone
+          Filtered out tone
         </div>
         <div className="legend-item">
           <span className="legend-swatch open" />

@@ -1,8 +1,3 @@
-import type {
-  ChordAlteration,
-  ChordExtension,
-  ChordQuality,
-} from "./chords";
 import type { IntervalName } from "./intervals";
 import type { NoteNamingPolicy } from "./noteNaming";
 import type { PitchClass } from "./pitchClass";
@@ -15,9 +10,7 @@ export interface KeyScaleFilter {
 
 export interface ChordFilter {
   rootPitchClass: PitchClass;
-  quality: ChordQuality;
-  extensions: readonly ChordExtension[];
-  alterations: readonly ChordAlteration[];
+  intervals: readonly IntervalName[];
 }
 
 export interface AppState {

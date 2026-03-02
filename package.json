@@ -7,7 +7,10 @@
   "scripts": {
     "dev": "corepack pnpm --filter app dev:desktop",
     "dev:web": "corepack pnpm --filter app dev",
+    "build:web": "corepack pnpm --filter app build:web",
+    "preview:web": "corepack pnpm --filter app preview:web",
     "build": "corepack pnpm -r build",
-    "test:core": "corepack pnpm --filter core test"
+    "test:core": "corepack pnpm --filter core test",
+    "test:core:coverage": "corepack pnpm --filter core test:coverage"
   }
 }

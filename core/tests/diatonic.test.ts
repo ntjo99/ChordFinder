@@ -13,14 +13,20 @@ describe("diatonic chord helpers", () => {
   it("returns expected diatonic qualities for C major roots", () => {
     expect(getDiatonicChordQualitiesForRoot(0, "major", 0)).toEqual([
       "major",
+      "sus2",
+      "sus4",
       "major7",
     ]);
     expect(getDiatonicChordQualitiesForRoot(0, "major", 2)).toEqual([
       "minor",
+      "sus2",
+      "sus4",
       "minor7",
     ]);
     expect(getDiatonicChordQualitiesForRoot(0, "major", 7)).toEqual([
       "major",
+      "sus2",
+      "sus4",
       "dominant7",
     ]);
     expect(getDiatonicChordQualitiesForRoot(0, "major", 11)).toEqual([

@@ -12,6 +12,8 @@ const DIATONIC_QUALITY_CANDIDATES: readonly ChordQuality[] = Object.freeze([
   "major",
   "minor",
   "diminished",
+  "sus2",
+  "sus4",
   "major7",
   "minor7",
   "dominant7",

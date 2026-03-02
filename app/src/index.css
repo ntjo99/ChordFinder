@@ -1,7 +1,8 @@
 :root {
   color: #e7ebf5;
   background-color: #090d14;
-  font-family: 'Segoe UI', 'Inter', sans-serif;
+  font-family: "Segoe UI Variable", "Aptos", "Segoe UI", "Inter", sans-serif;
+  color-scheme: dark;
   line-height: 1.45;
   font-weight: 400;
   font-synthesis: none;

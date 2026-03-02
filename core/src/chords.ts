@@ -14,7 +14,7 @@ export type ChordQuality =
   | "major7"
   | "minor7";
 
-export type ChordExtension = "6" | "7" | "9" | "11" | "13";
+export type ChordExtension = "6" | "b7" | "7" | "9" | "11" | "13";
 export type ChordAlteration = "b9" | "#9" | "#11" | "b13";
 
 export interface ChordOptions {
@@ -38,7 +38,8 @@ const CHORD_QUALITY_INTERVALS: Readonly<
 
 const CHORD_EXTENSION_INTERVAL: Readonly<Record<ChordExtension, IntervalName>> = {
   "6": "6",
-  "7": "b7",
+  b7: "b7",
+  "7": "7",
   "9": "9",
   "11": "11",
   "13": "13",

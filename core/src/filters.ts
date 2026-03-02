@@ -1,5 +1,4 @@
 import type { AppState } from "./appState";
-import { generateChordPitchClasses } from "./chords";
 import { resolveIntervalPitchClasses, type IntervalName } from "./intervals";
 import { formatPitchClasses } from "./noteNaming";
 import {
@@ -60,13 +59,9 @@ export const computeAllowedPitchClasses = (state: AppState): PitchClass[] => {
   }
 
   if (state.chord) {
-    const chordPitchClasses = generateChordPitchClasses(
+    const chordPitchClasses = resolveIntervalFilterPitchClasses(
       state.chord.rootPitchClass,
-      state.chord.quality,
-      {
-        extensions: state.chord.extensions,
-        alterations: state.chord.alterations,
-      },
+      state.chord.intervals,
     );
     intersectSet(allowed, chordPitchClasses);
   }

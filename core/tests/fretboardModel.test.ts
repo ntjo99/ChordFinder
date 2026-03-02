@@ -7,14 +7,14 @@ import {
 } from "../src/fretboardModel";
 
 describe("fretboardModel", () => {
-  it("creates standard tuning cells including open strings from fret 0 through 17", () => {
+  it("creates standard tuning cells including open strings from fret 0 through 22", () => {
     const cells = createFretboardCells();
     const fretCount = MVP_MAX_FRET - MVP_MIN_FRET + 1;
 
     expect(cells).toHaveLength(STANDARD_TUNING_PITCH_CLASSES.length * fretCount);
     expect(cells[0]).toEqual({ stringIndex: 0, fret: 0, pitchClass: 4 });
-    expect(cells[17]).toEqual({ stringIndex: 0, fret: 17, pitchClass: 9 });
-    expect(cells[18]).toEqual({ stringIndex: 1, fret: 0, pitchClass: 9 });
+    expect(cells[22]).toEqual({ stringIndex: 0, fret: 22, pitchClass: 2 });
+    expect(cells[23]).toEqual({ stringIndex: 1, fret: 0, pitchClass: 9 });
   });
 
   it("repeats pitch classes every 12 frets for each string", () => {

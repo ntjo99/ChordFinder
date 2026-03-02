@@ -5,6 +5,7 @@ export interface FretboardRenderData {
   cells: readonly FretboardCell[];
   minFret: number;
   maxFret: number;
+  showUnselectedNotes: boolean;
   hasChord: boolean;
   allowedPitchClasses: ReadonlySet<PitchClass>;
   chordPitchClasses: ReadonlySet<PitchClass>;
@@ -320,22 +321,40 @@ const drawNotes = (
 
   for (const cell of renderData.cells) {
     const toneRole = classifyToneRole(cell.pitchClass, renderData);
+    if (
+      !renderData.showUnselectedNotes &&
+      (toneRole === "muted" || toneRole === "idle")
+    ) {
+      continue;
+    }
     const style = getToneStyle(toneRole);
+    const isSelectedTone =
+      toneRole === "root" || toneRole === "chord" || toneRole === "allowed";
+    const isOctaveFret = cell.fret === OCTAVE_FRET;
+    const effectiveStyle =
+      isSelectedTone && isOctaveFret
+        ? {
+            ...style,
+            fill: "#62d1ff",
+            stroke: "#cdf4ff",
+            text: "#04131a",
+          }
+        : style;
     const centerX = layout.boardLeft + (cell.fret + 0.5 - minFret) * layout.fretSpacing;
     const centerY = layout.boardTop + cell.stringIndex * layout.stringSpacing;
-    const radius = layout.noteRadius * style.radiusScale;
+    const radius = layout.noteRadius * effectiveStyle.radiusScale;
     const isOpen = cell.fret === 0;
 
     if (isOpen) {
       ctx.fillStyle = "rgba(8, 12, 20, 0.82)";
-      ctx.strokeStyle = style.fill;
+      ctx.strokeStyle = effectiveStyle.fill;
       ctx.lineWidth = 2.2;
       ctx.beginPath();
       ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
 
-      ctx.strokeStyle = style.stroke;
+      ctx.strokeStyle = effectiveStyle.stroke;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.arc(centerX, centerY, radius * 0.68, 0, Math.PI * 2);
@@ -345,8 +364,8 @@ const drawNotes = (
       ctx.fillStyle = "rgba(224, 234, 249, 0.9)";
       ctx.fillText("O", centerX, centerY - radius - openBadgeSize * 0.65);
     } else {
-      ctx.fillStyle = style.fill;
-      ctx.strokeStyle = style.stroke;
+      ctx.fillStyle = effectiveStyle.fill;
+      ctx.strokeStyle = effectiveStyle.stroke;
       ctx.lineWidth = 1.4;
       ctx.beginPath();
       ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
@@ -354,8 +373,13 @@ const drawNotes = (
       ctx.stroke();
     }
 
-    ctx.font = `600 ${fontSize}px "Segoe UI", sans-serif`;
-    ctx.fillStyle = isOpen ? getOpenNoteTextColor(toneRole, style.text) : style.text;
+    const textScale =
+      toneRole === "root" ? 1.18 : toneRole === "chord" ? 1.12 : 1;
+    const effectiveFontSize = Math.max(10, fontSize * textScale);
+    ctx.font = `700 ${effectiveFontSize}px "Segoe UI", sans-serif`;
+    ctx.fillStyle = isOpen
+      ? getOpenNoteTextColor(toneRole, effectiveStyle.text)
+      : effectiveStyle.text;
     ctx.fillText(
       formatPitchClass(cell.pitchClass, renderData.noteNamingPolicy),
       centerX,

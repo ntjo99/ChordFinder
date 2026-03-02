@@ -1,4 +1,4 @@
-# Project: Fretboard Filter (working title)
+﻿# Project: Fretboard Filter (working title)
 
 ## 0) Additions / Clarifications
 - MVP must be easy to run locally on Windows for fast iteration.
@@ -146,18 +146,6 @@ Acceptance:
 - No layout jank at common window sizes.
 - Visual hierarchy: fretboard primary, filters secondary but accessible.
 
-### Milestone 5 - Presets + State Persistence (Optional, If Time)
-Goal: save/restore user selections for rapid reuse.
-
-Deliverables:
-- Serialize `AppState` to local per-machine storage.
-- Preset list (saved filters).
-- Persistence abstraction boundary (interface/repository) so storage backend can later be swapped to remote database.
-
-Acceptance:
-- App restores last state on launch.
-- Persistence implementation is local-first but designed for future remote backing store.
-
 ## 6) UI Look & Feel Requirements
 ### 6.1 Visual Style
 - Modern desktop app look: rounded corners, soft shadows, subtle gradients.
@@ -275,3 +263,4 @@ designTokens.json
 - Fretboard initially shows frets 0-17 with open strings.
 - Chord context de-emphasizes non-chord tones and highlights valid tones.
 - UI is modern/polished per style section.
+

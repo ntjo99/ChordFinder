@@ -2,8 +2,7 @@ import {
   computeAllowedNoteNames,
   getDiatonicChordQualitiesForRoot,
   getDiatonicChordRoots,
-  type ChordExtension,
-  type ChordQuality,
+  type AppState,
   type IntervalName,
   type PitchClass,
 } from "@core";
@@ -15,38 +14,76 @@ import { VisualLegend } from "./components/VisualLegend";
 import "./App.css";
 import {
   ALL_PITCH_CLASS_OPTIONS,
-  CHORD_EXTENSION_OPTIONS,
   CHORD_QUALITY_OPTIONS,
-  INTERVAL_OPTIONS,
   createInitialAppState,
   createInitialViewFilterState,
+  resolveTuningPreset,
 } from "./state/appStateStore";
+import {
+  applyChordPreset,
+  getBaseQualityIntervals,
+  toggleChordInterval,
+  type BaseChordQuality,
+  type ChordPresetId,
+} from "./state/chordBuilder";
 import { buildStateSummary, deriveFretboardState } from "./state/derivedSelectors";
+import { loadPersistedSession, persistSession } from "./state/persistence";
 
-const toOrderedIntervals = (
-  values: Iterable<IntervalName>,
-): IntervalName[] => {
-  const valueSet = new Set(values);
-  return INTERVAL_OPTIONS.filter((interval) => valueSet.has(interval));
-};
-
-const toggleInterval = (
-  existing: readonly IntervalName[],
-  interval: IntervalName,
-): IntervalName[] => {
-  const next = new Set(existing);
-  if (next.has(interval)) {
-    next.delete(interval);
-  } else {
-    next.add(interval);
+const constrainChordToDiatonicIfNeeded = (state: AppState): AppState => {
+  if (!state.chord || !state.keyScale) {
+    return state;
   }
 
-  return toOrderedIntervals(next);
+  const chordRoots = getDiatonicChordRoots(
+    state.keyScale.rootPitchClass,
+    state.keyScale.scaleType,
+  );
+  const rootPitchClass = chordRoots.includes(state.chord.rootPitchClass)
+    ? state.chord.rootPitchClass
+    : chordRoots[0] ?? state.chord.rootPitchClass;
+
+  if (rootPitchClass === state.chord.rootPitchClass) {
+    return state;
+  }
+
+  return {
+    ...state,
+    chord: {
+      ...state.chord,
+      rootPitchClass,
+    },
+  };
+};
+
+const sanitizeAppState = (state: AppState): AppState => {
+  const withClearedIntervalFilters: AppState = {
+    ...state,
+    includeIntervals: [],
+    excludeIntervals: [],
+  };
+
+  return constrainChordToDiatonicIfNeeded(withClearedIntervalFilters);
+};
+
+const createSessionBootstrap = () => {
+  const persisted = loadPersistedSession();
+  return {
+    restored: persisted !== null,
+    appState: persisted ? sanitizeAppState(persisted.appState) : createInitialAppState(),
+    viewState: persisted ? persisted.viewState : createInitialViewFilterState(),
+  };
 };
 
 function App() {
-  const [appState, setAppState] = useState(createInitialAppState);
-  const [viewState, setViewState] = useState(createInitialViewFilterState);
+  const [bootstrap] = useState(createSessionBootstrap);
+  const [appState, setAppState] = useState<AppState>(bootstrap.appState);
+  const [viewState, setViewState] = useState(bootstrap.viewState);
+  const updateAppState = useCallback(
+    (updater: (state: AppState) => AppState) => {
+      setAppState((previous) => sanitizeAppState(updater(previous)));
+    },
+    [],
+  );
 
   const availableChordRoots = useMemo(() => {
     if (!appState.keyScale) {
@@ -60,61 +97,22 @@ function App() {
   }, [appState.keyScale]);
 
   const resolveChordQualitiesForRoot = useCallback(
-    (rootPitchClass: PitchClass): readonly ChordQuality[] => {
+    (rootPitchClass: PitchClass): readonly BaseChordQuality[] => {
       if (!appState.keyScale) {
         return CHORD_QUALITY_OPTIONS;
       }
 
+      const qualitySet = new Set<BaseChordQuality>(CHORD_QUALITY_OPTIONS);
       const qualities = getDiatonicChordQualitiesForRoot(
         appState.keyScale.rootPitchClass,
         appState.keyScale.scaleType,
         rootPitchClass,
-      );
+      ).filter((quality): quality is BaseChordQuality => qualitySet.has(quality as BaseChordQuality));
 
       return qualities.length > 0 ? qualities : CHORD_QUALITY_OPTIONS;
     },
     [appState.keyScale],
   );
-
-  const chordRootForOptions = appState.chord?.rootPitchClass ?? availableChordRoots[0] ?? 0;
-  const availableChordQualities = useMemo(
-    () => resolveChordQualitiesForRoot(chordRootForOptions),
-    [chordRootForOptions, resolveChordQualitiesForRoot],
-  );
-
-  useEffect(() => {
-    if (!appState.chord) {
-      return;
-    }
-
-    const currentRoot = appState.chord.rootPitchClass;
-    const rootIsAllowed = availableChordRoots.includes(currentRoot);
-    const nextRoot = rootIsAllowed ? currentRoot : availableChordRoots[0] ?? currentRoot;
-    const qualitiesForRoot = resolveChordQualitiesForRoot(nextRoot);
-    const qualityIsAllowed = qualitiesForRoot.includes(appState.chord.quality);
-    const nextQuality = qualityIsAllowed
-      ? appState.chord.quality
-      : qualitiesForRoot[0] ?? appState.chord.quality;
-
-    if (nextRoot === currentRoot && nextQuality === appState.chord.quality) {
-      return;
-    }
-
-    setAppState((previous) => {
-      if (!previous.chord) {
-        return previous;
-      }
-
-      return {
-        ...previous,
-        chord: {
-          ...previous.chord,
-          rootPitchClass: nextRoot,
-          quality: nextQuality,
-        },
-      };
-    });
-  }, [appState.chord, availableChordRoots, resolveChordQualitiesForRoot]);
 
   const handleReset = () => {
     setAppState(createInitialAppState());
@@ -122,7 +120,7 @@ function App() {
   };
 
   const handleChordEnabledChange = (enabled: boolean) => {
-    setAppState((previous) => {
+    updateAppState((previous) => {
       if (!enabled) {
         return {
           ...previous,
@@ -137,57 +135,36 @@ function App() {
           )
         : ALL_PITCH_CLASS_OPTIONS;
       const rootPitchClass = roots[0] ?? 0;
-      const qualities = previous.keyScale
-        ? getDiatonicChordQualitiesForRoot(
-            previous.keyScale.rootPitchClass,
-            previous.keyScale.scaleType,
-            rootPitchClass,
-          )
-        : CHORD_QUALITY_OPTIONS;
-      const quality = qualities[0] ?? CHORD_QUALITY_OPTIONS[0];
+      const quality = resolveChordQualitiesForRoot(rootPitchClass)[0] ?? "major";
 
       return {
         ...previous,
         chord: {
           rootPitchClass,
-          quality,
-          extensions: [],
-          alterations: [],
+          intervals: [...getBaseQualityIntervals(quality)],
         },
       };
     });
   };
 
   const handleChordRootChange = (rootPitchClass: PitchClass) => {
-    setAppState((previous) => {
+    updateAppState((previous) => {
       if (!previous.chord) {
         return previous;
       }
-
-      const qualities = previous.keyScale
-        ? getDiatonicChordQualitiesForRoot(
-            previous.keyScale.rootPitchClass,
-            previous.keyScale.scaleType,
-            rootPitchClass,
-          )
-        : CHORD_QUALITY_OPTIONS;
-      const quality = qualities.includes(previous.chord.quality)
-        ? previous.chord.quality
-        : qualities[0] ?? CHORD_QUALITY_OPTIONS[0];
 
       return {
         ...previous,
         chord: {
           ...previous.chord,
           rootPitchClass,
-          quality,
         },
       };
     });
   };
 
-  const handleChordQualityChange = (quality: ChordQuality) => {
-    setAppState((previous) => {
+  const handleChordPresetToggle = (presetId: ChordPresetId) => {
+    updateAppState((previous) => {
       if (!previous.chord) {
         return previous;
       }
@@ -196,55 +173,26 @@ function App() {
         ...previous,
         chord: {
           ...previous.chord,
-          quality,
+          intervals: applyChordPreset(previous.chord.intervals, presetId),
         },
       };
     });
   };
 
-  const handleChordExtensionToggle = (extension: ChordExtension) => {
-    setAppState((previous) => {
+  const handleChordIntervalToggle = (interval: IntervalName) => {
+    updateAppState((previous) => {
       if (!previous.chord) {
         return previous;
-      }
-
-      const extensionSet = new Set(previous.chord.extensions);
-      if (extensionSet.has(extension)) {
-        extensionSet.delete(extension);
-      } else {
-        extensionSet.add(extension);
       }
 
       return {
         ...previous,
         chord: {
           ...previous.chord,
-          extensions: CHORD_EXTENSION_OPTIONS.filter((item) =>
-            extensionSet.has(item),
-          ),
+          intervals: toggleChordInterval(previous.chord.intervals, interval),
         },
       };
     });
-  };
-
-  const handleIncludeIntervalToggle = (interval: IntervalName) => {
-    setAppState((previous) => ({
-      ...previous,
-      includeIntervals: toggleInterval(previous.includeIntervals, interval),
-      excludeIntervals: previous.excludeIntervals.filter(
-        (current) => current !== interval,
-      ),
-    }));
-  };
-
-  const handleExcludeIntervalToggle = (interval: IntervalName) => {
-    setAppState((previous) => ({
-      ...previous,
-      includeIntervals: previous.includeIntervals.filter(
-        (current) => current !== interval,
-      ),
-      excludeIntervals: toggleInterval(previous.excludeIntervals, interval),
-    }));
   };
 
   const handleStringToggle = (stringIndex: number) => {
@@ -267,18 +215,40 @@ function App() {
     });
   };
 
+  const normalizeEnabledStringIndices = (
+    enabledStringIndices: readonly number[],
+    stringCount: number,
+  ): number[] => {
+    const next = [...new Set(enabledStringIndices)]
+      .filter((index) => index >= 0 && index < stringCount)
+      .sort((left, right) => left - right);
+
+    return next.length > 0 ? next : [0];
+  };
+
   const derivedState = useMemo(
     () => deriveFretboardState(appState, viewState),
     [appState, viewState],
   );
-  const allowedNotes = useMemo(
-    () => computeAllowedNoteNames(appState),
-    [appState],
-  );
+  const allowedNotes = useMemo(() => computeAllowedNoteNames(appState), [appState]);
   const stateSummary = useMemo(() => buildStateSummary(appState), [appState]);
+  const tuningSummary = useMemo(() => {
+    if (viewState.tuningPresetId === "custom") {
+      return "Custom";
+    }
+
+    return resolveTuningPreset(viewState.tuningPresetId)?.label ?? "Custom";
+  }, [viewState.tuningPresetId]);
   const viewSummary = `Frets ${viewState.minFret}-${viewState.maxFret} | Strings ${
     viewState.enabledStringIndices.length
-  }/6`;
+  }/${viewState.stringPitchClasses.length} | Tuning ${tuningSummary}`;
+  const sessionStatus = bootstrap.restored
+    ? "Local autosave active | Restored previous session"
+    : "Local autosave active";
+
+  useEffect(() => {
+    persistSession(appState, viewState);
+  }, [appState, viewState]);
 
   return (
     <main className="app-shell">
@@ -288,6 +258,7 @@ function App() {
           summary="Fretboard Filter"
           detail={stateSummary}
           allowedNotes={allowedNotes}
+          status={sessionStatus}
           onReset={handleReset}
         >
           <p className="state-summary-inline">{viewSummary}</p>
@@ -306,15 +277,14 @@ function App() {
             viewState={viewState}
             keyRootOptions={ALL_PITCH_CLASS_OPTIONS}
             chordRootOptions={availableChordRoots}
-            chordQualityOptions={availableChordQualities}
             onNoteNamingChange={(policy) =>
-              setAppState((previous) => ({
+              updateAppState((previous) => ({
                 ...previous,
                 noteNamingPolicy: policy,
               }))
             }
             onKeyEnabledChange={(enabled) =>
-              setAppState((previous) => ({
+              updateAppState((previous) => ({
                 ...previous,
                 keyScale: enabled
                   ? previous.keyScale ?? { rootPitchClass: 0, scaleType: "major" }
@@ -322,7 +292,7 @@ function App() {
               }))
             }
             onKeyRootChange={(rootPitchClass) =>
-              setAppState((previous) => ({
+              updateAppState((previous) => ({
                 ...previous,
                 keyScale: previous.keyScale
                   ? {
@@ -333,7 +303,7 @@ function App() {
               }))
             }
             onScaleTypeChange={(scaleType) =>
-              setAppState((previous) => ({
+              updateAppState((previous) => ({
                 ...previous,
                 keyScale: previous.keyScale
                   ? {
@@ -345,10 +315,52 @@ function App() {
             }
             onChordEnabledChange={handleChordEnabledChange}
             onChordRootChange={handleChordRootChange}
-            onChordQualityChange={handleChordQualityChange}
-            onChordExtensionToggle={handleChordExtensionToggle}
-            onIncludeIntervalToggle={handleIncludeIntervalToggle}
-            onExcludeIntervalToggle={handleExcludeIntervalToggle}
+            onChordPresetToggle={handleChordPresetToggle}
+            onChordIntervalToggle={handleChordIntervalToggle}
+            onTuningPresetChange={(presetId) =>
+              setViewState((previous) => {
+                if (presetId === "custom") {
+                  return {
+                    ...previous,
+                    tuningPresetId: "custom",
+                  };
+                }
+
+                const preset = resolveTuningPreset(presetId);
+                if (!preset) {
+                  return previous;
+                }
+
+                const stringPitchClasses = [...preset.stringPitchClasses];
+                return {
+                  ...previous,
+                  tuningPresetId: preset.id,
+                  stringPitchClasses,
+                  enabledStringIndices: normalizeEnabledStringIndices(
+                    previous.enabledStringIndices,
+                    stringPitchClasses.length,
+                  ),
+                };
+              })
+            }
+            onCustomTuningStringChange={(stringIndex, pitchClass) =>
+              setViewState((previous) => {
+                if (
+                  stringIndex < 0 ||
+                  stringIndex >= previous.stringPitchClasses.length
+                ) {
+                  return previous;
+                }
+
+                const nextPitchClasses = [...previous.stringPitchClasses];
+                nextPitchClasses[stringIndex] = pitchClass;
+                return {
+                  ...previous,
+                  tuningPresetId: "custom",
+                  stringPitchClasses: nextPitchClasses,
+                };
+              })
+            }
             onMinFretChange={(value) =>
               setViewState((previous) => ({
                 ...previous,
@@ -364,6 +376,12 @@ function App() {
               }))
             }
             onStringToggle={handleStringToggle}
+            onShowUnselectedNotesChange={(value) =>
+              setViewState((previous) => ({
+                ...previous,
+                showUnselectedNotes: value,
+              }))
+            }
           />
         </section>
       </section>

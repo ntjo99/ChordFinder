@@ -2,26 +2,25 @@ import {
   computeAllowedPitchClasses,
   createFretboardCells,
   formatPitchClass,
-  generateChordPitchClasses,
+  resolveIntervalPitchClasses,
   type AppState,
   type FretboardCell,
   type PitchClass,
 } from "@core";
-import type { ViewFilterState } from "./appStateStore";
+import { type ViewFilterState } from "./appStateStore";
+import { resolveChordDisplay } from "./chordBuilder";
 
 export interface DerivedFretboardState {
   cells: readonly FretboardCell[];
   minFret: number;
   maxFret: number;
+  showUnselectedNotes: boolean;
   hasChord: boolean;
   allowedPitchClasses: ReadonlySet<PitchClass>;
   chordPitchClasses: ReadonlySet<PitchClass>;
   rootPitchClass: PitchClass | null;
   noteNamingPolicy: AppState["noteNamingPolicy"];
 }
-
-const baseFretboardCells = Object.freeze(createFretboardCells());
-const DEFAULT_STRING_INDICES = Object.freeze([0, 1, 2, 3, 4, 5]);
 
 const getRootPitchClass = (state: AppState): PitchClass | null => {
   if (state.chord) {
@@ -37,9 +36,10 @@ const getRootPitchClass = (state: AppState): PitchClass | null => {
 
 const normalizeEnabledStringIndices = (
   value: readonly number[],
+  stringCount: number,
 ): number[] => {
   const normalized = [...new Set(value)]
-    .filter((index) => index >= 0 && index < DEFAULT_STRING_INDICES.length)
+    .filter((index) => index >= 0 && index < stringCount)
     .sort((left, right) => left - right);
 
   return normalized.length > 0 ? normalized : [0];
@@ -50,8 +50,9 @@ const mapCellStringIndices = (
   enabledStringIndices: readonly number[],
 ): FretboardCell[] => {
   const indexMap = new Map<number, number>();
+  const lastDisplayIndex = enabledStringIndices.length - 1;
   enabledStringIndices.forEach((stringIndex, displayIndex) => {
-    indexMap.set(stringIndex, displayIndex);
+    indexMap.set(stringIndex, lastDisplayIndex - displayIndex);
   });
 
   return cells.map((cell) => ({
@@ -66,13 +67,14 @@ export const deriveFretboardState = (
 ): DerivedFretboardState => {
   const allowedPitchClasses = computeAllowedPitchClasses(state);
   const chordPitchClasses = state.chord
-    ? generateChordPitchClasses(state.chord.rootPitchClass, state.chord.quality, {
-        extensions: state.chord.extensions,
-        alterations: state.chord.alterations,
-      })
+    ? resolveIntervalPitchClasses(state.chord.rootPitchClass, state.chord.intervals)
     : [];
+  const baseFretboardCells = createFretboardCells({
+    stringPitchClasses: viewState.stringPitchClasses,
+  });
   const enabledStringIndices = normalizeEnabledStringIndices(
     viewState.enabledStringIndices,
+    viewState.stringPitchClasses.length,
   );
   const enabledStringSet = new Set(enabledStringIndices);
   const filteredCells = baseFretboardCells.filter(
@@ -87,6 +89,7 @@ export const deriveFretboardState = (
     cells,
     minFret: viewState.minFret,
     maxFret: viewState.maxFret,
+    showUnselectedNotes: viewState.showUnselectedNotes,
     hasChord: state.chord !== null,
     allowedPitchClasses: new Set(allowedPitchClasses),
     chordPitchClasses: new Set(chordPitchClasses),
@@ -115,9 +118,13 @@ export const buildStateSummary = (state: AppState): string => {
       )} ${state.keyScale.scaleType}`
     : "No key";
   const chordSummary = state.chord
-    ? `${formatPitchClass(state.chord.rootPitchClass, state.noteNamingPolicy)} ${
-        state.chord.quality
-      }`
+    ? (() => {
+        const root = formatPitchClass(
+          state.chord.rootPitchClass,
+          state.noteNamingPolicy,
+        );
+        return resolveChordDisplay(root, state.chord.intervals).label;
+      })()
     : "No chord";
   const excludeSummary =
     state.excludeIntervals.length > 0
