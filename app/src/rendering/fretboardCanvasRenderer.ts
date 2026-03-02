@@ -14,6 +14,9 @@ export interface FretboardRenderData {
 
 const INLAY_FRETS = new Set([3, 5, 7, 9, 12, 15, 17]);
 const MARKER_LABEL_FRETS = new Set([3, 5, 7, 9, 12, 15, 17]);
+const OCTAVE_FRET = 12;
+const OCTAVE_NEIGHBOR_FRETS = [12, 13] as const;
+const OPEN_SEPARATOR_FRET = 1;
 
 type ToneRole = "root" | "chord" | "allowed" | "muted" | "idle";
 
@@ -55,6 +58,27 @@ const drawBoard = (
   background.addColorStop(1, "rgba(12, 18, 28, 0.95)");
   ctx.fillStyle = background;
   ctx.fillRect(layout.boardLeft, layout.boardTop, boardWidth, boardHeight);
+};
+
+const drawOctaveNeighborFretLines = (
+  ctx: CanvasRenderingContext2D,
+  layout: ReturnType<typeof computeLayoutMetrics>,
+  minFret: number,
+  maxFret: number,
+): void => {
+  for (const fret of OCTAVE_NEIGHBOR_FRETS) {
+    if (fret < minFret || fret > maxFret) {
+      continue;
+    }
+
+    const x = layout.boardLeft + (fret - minFret) * layout.fretSpacing;
+    ctx.strokeStyle = "rgba(232, 238, 247, 0.78)";
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(x, layout.boardTop);
+    ctx.lineTo(x, layout.boardBottom);
+    ctx.stroke();
+  }
 };
 
 const drawHeadstock = (
@@ -112,12 +136,20 @@ const drawHeadstock = (
 const drawFrets = (
   ctx: CanvasRenderingContext2D,
   layout: ReturnType<typeof computeLayoutMetrics>,
+  minFret: number,
 ): void => {
   for (let fret = 0; fret <= layout.fretCount; fret += 1) {
     const x = layout.boardLeft + fret * layout.fretSpacing;
-    const lineWidth = fret === 0 ? 4 : 1;
+    const actualFret = minFret + fret;
+    const isNut = actualFret === 0;
+    const isOpenSeparator = actualFret === OPEN_SEPARATOR_FRET;
+    const lineWidth = isNut ? 4 : isOpenSeparator ? 2.1 : 1;
 
-    ctx.strokeStyle = fret === 0 ? "rgba(196, 208, 230, 0.85)" : "rgba(149, 163, 188, 0.35)";
+    ctx.strokeStyle = isNut
+      ? "rgba(196, 208, 230, 0.85)"
+      : isOpenSeparator
+        ? "rgba(232, 238, 247, 0.78)"
+        : "rgba(149, 163, 188, 0.35)";
     ctx.lineWidth = lineWidth;
     ctx.beginPath();
     ctx.moveTo(x, layout.boardTop);
@@ -158,12 +190,27 @@ const drawInlays = (
 
     const x = layout.boardLeft + (fret + 0.5 - minFret) * layout.fretSpacing;
     const midY = (layout.boardTop + layout.boardBottom) / 2;
-    ctx.fillStyle = "rgba(140, 154, 182, 0.35)";
+    const isOctave = fret === OCTAVE_FRET;
+    ctx.fillStyle = isOctave
+      ? "rgba(86, 206, 255, 0.55)"
+      : "rgba(140, 154, 182, 0.35)";
 
-    if (fret === 12) {
+    if (isOctave) {
       ctx.beginPath();
-      ctx.arc(x, layout.boardTop + (layout.boardBottom - layout.boardTop) * 0.35, 5.5, 0, Math.PI * 2);
-      ctx.arc(x, layout.boardTop + (layout.boardBottom - layout.boardTop) * 0.65, 5.5, 0, Math.PI * 2);
+      ctx.arc(
+        x,
+        layout.boardTop + (layout.boardBottom - layout.boardTop) * 0.35,
+        7.1,
+        0,
+        Math.PI * 2,
+      );
+      ctx.arc(
+        x,
+        layout.boardTop + (layout.boardBottom - layout.boardTop) * 0.65,
+        7.1,
+        0,
+        Math.PI * 2,
+      );
       ctx.fill();
     } else {
       ctx.beginPath();
@@ -190,8 +237,22 @@ const drawFretLabels = (
 
     const x = layout.boardLeft + (fret + 0.5 - minFret) * layout.fretSpacing;
     const y = layout.markerLabelY;
-    ctx.fillStyle = "rgba(190, 203, 227, 0.9)";
-    ctx.fillText(String(fret), x, y);
+    if (fret === OCTAVE_FRET) {
+      ctx.fillStyle = "rgba(27, 56, 73, 0.82)";
+      ctx.strokeStyle = "rgba(98, 209, 255, 0.9)";
+      ctx.lineWidth = 1.1;
+      const width = Math.max(54, layout.fretSpacing * 0.84);
+      const height = Math.max(16, layout.noteRadius * 1.2);
+      ctx.beginPath();
+      ctx.roundRect(x - width / 2, y - height / 2, width, height, 9);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "rgba(220, 245, 255, 0.98)";
+      ctx.fillText("12 OCT", x, y);
+    } else {
+      ctx.fillStyle = "rgba(190, 203, 227, 0.9)";
+      ctx.fillText(String(fret), x, y);
+    }
   }
 };
 
@@ -315,7 +376,8 @@ export const renderFretboardCanvas = (
 
   drawBoard(ctx, layout);
   drawHeadstock(ctx, layout);
-  drawFrets(ctx, layout);
+  drawFrets(ctx, layout, renderData.minFret);
+  drawOctaveNeighborFretLines(ctx, layout, renderData.minFret, renderData.maxFret);
   drawInlays(ctx, layout, renderData.minFret, renderData.maxFret);
   drawStrings(ctx, layout);
   drawNotes(ctx, layout, renderData);

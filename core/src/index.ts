@@ -1,5 +1,6 @@
 export * from "./appState";
 export * from "./chords";
+export * from "./diatonic";
 export * from "./filters";
 export * from "./fretboardModel";
 export * from "./intervals";

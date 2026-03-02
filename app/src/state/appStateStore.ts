@@ -1,61 +1,86 @@
-import type { AppState } from "@core";
+import {
+  ALL_PITCH_CLASSES,
+  MVP_MAX_FRET,
+  MVP_MIN_FRET,
+  STANDARD_TUNING_PITCH_CLASSES,
+  createDefaultAppState,
+  type AppState,
+  type ChordExtension,
+  type ChordQuality,
+  type IntervalName,
+  type ScaleType,
+} from "@core";
 
-export interface DemoPreset {
-  id: string;
-  label: string;
-  description: string;
-  state: AppState;
+export interface ViewFilterState {
+  minFret: number;
+  maxFret: number;
+  enabledStringIndices: readonly number[];
 }
 
-export const milestone2Presets: readonly DemoPreset[] = Object.freeze([
-  {
-    id: "c-major-scale",
-    label: "C Major Scale",
-    description: "Scale-only highlight coverage across frets 0-17.",
-    state: {
-      noteNamingPolicy: "sharps",
-      keyScale: { rootPitchClass: 0, scaleType: "major" },
-      chord: null,
-      includeIntervals: [],
-      excludeIntervals: [],
-    },
-  },
-  {
-    id: "c-key-g7",
-    label: "C Key + G7",
-    description:
-      "Chord tones stay bright while non-chord scale tones de-emphasize.",
-    state: {
-      noteNamingPolicy: "sharps",
-      keyScale: { rootPitchClass: 0, scaleType: "major" },
-      chord: {
-        rootPitchClass: 7,
-        quality: "dominant7",
-        extensions: [],
-        alterations: [],
-      },
-      includeIntervals: [],
-      excludeIntervals: [],
-    },
-  },
-  {
-    id: "g-major-omit3",
-    label: "G Omit 3",
-    description: "Chord omit behavior example: G major with excluded 3rd.",
-    state: {
-      noteNamingPolicy: "sharps",
-      keyScale: null,
-      chord: {
-        rootPitchClass: 7,
-        quality: "major",
-        extensions: [],
-        alterations: [],
-      },
-      includeIntervals: [],
-      excludeIntervals: ["3"],
-    },
-  },
+export const SCALE_OPTIONS: readonly ScaleType[] = Object.freeze([
+  "major",
+  "naturalMinor",
 ]);
 
-export const getPresetById = (id: string): DemoPreset =>
-  milestone2Presets.find((preset) => preset.id === id) ?? milestone2Presets[0]!;
+export const CHORD_QUALITY_OPTIONS: readonly ChordQuality[] = Object.freeze([
+  "major",
+  "minor",
+  "diminished",
+  "augmented",
+  "sus2",
+  "sus4",
+  "dominant7",
+  "major7",
+  "minor7",
+]);
+
+export const CHORD_EXTENSION_OPTIONS: readonly ChordExtension[] = Object.freeze([
+  "6",
+  "7",
+  "9",
+  "11",
+  "13",
+]);
+
+export const INTERVAL_OPTIONS: readonly IntervalName[] = Object.freeze([
+  "1",
+  "b2",
+  "2",
+  "b3",
+  "3",
+  "4",
+  "b5",
+  "5",
+  "#5",
+  "6",
+  "b7",
+  "7",
+  "9",
+  "11",
+  "13",
+  "b9",
+  "#9",
+  "#11",
+  "b13",
+]);
+
+export const FRET_OPTIONS: readonly number[] = Object.freeze(
+  Array.from({ length: MVP_MAX_FRET - MVP_MIN_FRET + 1 }, (_, index) => index),
+);
+
+export const ALL_PITCH_CLASS_OPTIONS = ALL_PITCH_CLASSES;
+export const STANDARD_TUNING = STANDARD_TUNING_PITCH_CLASSES;
+
+export const createInitialAppState = (): AppState => ({
+  ...createDefaultAppState(),
+  keyScale: {
+    rootPitchClass: 0,
+    scaleType: "major",
+  },
+});
+
+export const createInitialViewFilterState = (): ViewFilterState => ({
+  minFret: MVP_MIN_FRET,
+  maxFret: MVP_MAX_FRET,
+  enabledStringIndices: [0, 1, 2, 3, 4, 5],
+});

@@ -4,6 +4,7 @@ interface StateSummaryBarProps {
   summary: string;
   detail: string;
   allowedNotes: readonly string[];
+  onReset: () => void;
   children?: ReactNode;
 }
 
@@ -11,12 +12,13 @@ export function StateSummaryBar({
   summary,
   detail,
   allowedNotes,
+  onReset,
   children,
 }: StateSummaryBarProps) {
   return (
     <header className="state-summary">
       <div className="state-summary-text">
-        <p className="state-summary-label">Milestone 2 Demo</p>
+        <p className="state-summary-label">Milestone 4 Polish</p>
         <h1>{summary}</h1>
         <p className="state-summary-detail">{detail}</p>
       </div>
@@ -30,6 +32,9 @@ export function StateSummaryBar({
           ))}
         </div>
         {children}
+        <button type="button" className="reset-button" onClick={onReset}>
+          Reset
+        </button>
       </div>
     </header>
   );
