@@ -1,0 +1,20 @@
+[package]
+name = "fretboard_filter_app"
+version = "0.1.0"
+description = "Fretboard Filter desktop app"
+authors = ["Nathan Turner"]
+edition = "2021"
+
+[lib]
+name = "fretboard_filter_app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]

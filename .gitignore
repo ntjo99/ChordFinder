@@ -1,0 +1,7 @@
+node_modules/
+pnpm-debug.log*
+
+app/dist/
+core/dist/
+
+app/src-tauri/target/
