@@ -385,6 +385,65 @@ function App() {
           />
         </section>
       </section>
+
+      <section className="seo-content" aria-labelledby="seo-heading">
+        <h2 id="seo-heading">Guitar Chord Finder for Triads, Shapes, and Scales</h2>
+        <p>
+          Chord Finder is a guitar theory app for mapping chord tones, triads, and scale notes
+          directly on a fretboard. Choose a key, scale, chord root, and interval formula to
+          visualize playable guitar shapes across the neck.
+        </p>
+        <div className="seo-grid">
+          <article className="seo-card">
+            <h3>Find Chord Shapes Faster</h3>
+            <p>
+              Build major, minor, diminished, augmented, sus2, sus4, add9, add11, 6, 7, and
+              maj7 voicings. Highlight only chord tones or include surrounding scale tones to
+              study functional harmony.
+            </p>
+          </article>
+          <article className="seo-card">
+            <h3>Train Triads by String Set</h3>
+            <p>
+              Use string toggles and fret ranges to isolate triad shapes across common guitar
+              string groups. Practice inversions and visualize root position, first inversion,
+              and second inversion movement.
+            </p>
+          </article>
+          <article className="seo-card">
+            <h3>Explore Tunings and Modes</h3>
+            <p>
+              Switch between standard tuning, drop D, D standard, open G, open D, or custom
+              tuning. Combine that with major modes, pentatonic scales, and blues scales for
+              genre-specific fretboard navigation.
+            </p>
+          </article>
+        </div>
+        <section className="seo-faq" aria-labelledby="seo-faq-heading">
+          <h3 id="seo-faq-heading">Chord Finder FAQ</h3>
+          <details>
+            <summary>How do I find guitar triads quickly?</summary>
+            <p>
+              Enable a chord, select a base quality or preset, and limit strings to a 3-string
+              set. Then reduce the fret range to isolate compact triad shapes.
+            </p>
+          </details>
+          <details>
+            <summary>Can I filter chord tones by a key or scale?</summary>
+            <p>
+              Yes. Turn on key/scale filtering to constrain the available tones and keep chord
+              choices aligned with the selected key center.
+            </p>
+          </details>
+          <details>
+            <summary>Does this work for custom guitar tuning?</summary>
+            <p>
+              Yes. Choose a preset tuning or set each string manually, then the fretboard and
+              note highlights recalculate instantly.
+            </p>
+          </details>
+        </section>
+      </section>
     </main>
   );
 }

@@ -4,17 +4,85 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1" />
+    <meta
+      name="keywords"
+      content="guitar chord finder, guitar triads, chord shapes, guitar fretboard, chord tones, guitar scales, guitar intervals"
+    />
     <meta
       name="description"
-      content="Chord Finder is an interactive guitar fretboard app for exploring keys, scales, chords, and interval-based omissions."
+      content="Find guitar chords, triads, and fretboard shapes fast. Explore chord tones, intervals, scales, and alternate tunings with an interactive guitar chord finder."
     />
+    <link rel="canonical" href="/" />
     <meta property="og:title" content="Chord Finder" />
     <meta
       property="og:description"
-      content="Interactive guitar fretboard for keys, scales, chords, tunings, and interval-driven chord building."
+      content="Interactive guitar chord finder for triads, fretboard shapes, scales, intervals, and alternate tunings."
     />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="/" />
+    <meta property="og:image" content="/favicon.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Chord Finder" />
+    <meta
+      name="twitter:description"
+      content="Find guitar chord shapes, triads, and scale notes with an interactive fretboard."
+    />
+    <meta name="twitter:image" content="/favicon.svg" />
     <meta name="theme-color" content="#090d14" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Chord Finder",
+        "applicationCategory": "MusicApplication",
+        "operatingSystem": "Web",
+        "description": "Interactive guitar chord finder for chord shapes, triads, intervals, scales, and alternate tunings.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "featureList": [
+          "Guitar chord and triad visualization",
+          "Fretboard interval and chord tone highlighting",
+          "Scale and key-based note filtering",
+          "Alternative tuning presets and custom tuning"
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I find guitar triad shapes quickly?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Enable a chord, use string and fret filters, and focus on compact 3-note interval sets to isolate triad shapes."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I filter chord notes by key and scale?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Enable key and scale filters to constrain notes and align chord tones with the selected key center."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does Chord Finder support alternate guitar tunings?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. The app includes standard and alternate tuning presets plus full per-string custom tuning."
+            }
+          }
+        ]
+      }
+    </script>
     <style>
       html,
       body,
@@ -28,10 +96,14 @@
         color: #dde7f8;
       }
     </style>
-    <title>Chord Finder</title>
+    <title>Chord Finder | Guitar Chords, Triads, and Fretboard Shapes</title>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      Chord Finder helps guitar players map chord shapes, triads, intervals, and scales on the
+      fretboard. Enable JavaScript to use the interactive app.
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

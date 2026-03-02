@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+# Update this with your final production domain before launch if needed.
+Sitemap: /sitemap.xml
+
