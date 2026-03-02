@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1" />
+    <meta
+      name="description"
+      content="About Chord Finder: a guitar chord finder for triads, fretboard shapes, intervals, scales, and alternate tunings."
+    />
+    <meta property="og:title" content="About Chord Finder" />
+    <meta
+      property="og:description"
+      content="Learn how Chord Finder helps guitar players discover chord shapes, triads, and fretboard patterns."
+    />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://YOUR_DOMAIN_HERE/about.html" />
+    <meta name="theme-color" content="#090d14" />
+    <title>About | Chord Finder</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI Variable", "Aptos", "Segoe UI", sans-serif;
+        color: #dde7f8;
+        background: radial-gradient(circle at 12% 0%, #24314a 0%, #101826 50%, #090d14 100%);
+      }
+      .shell {
+        min-height: 100vh;
+        padding: clamp(0.7rem, 2vw, 1.2rem);
+        display: grid;
+        place-items: center;
+      }
+      .card {
+        width: min(980px, calc(100vw - 1rem));
+        border-radius: 18px;
+        padding: 1rem 1.1rem;
+        background: linear-gradient(160deg, rgba(16, 24, 38, 0.9), rgba(10, 16, 27, 0.9));
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        box-shadow: 0 18px 46px rgba(0, 0, 0, 0.28);
+      }
+      .eyebrow {
+        margin: 0;
+        font-size: 0.74rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #18c3ff;
+      }
+      h1 {
+        margin: 0.24rem 0 0;
+        font-size: clamp(1.12rem, 1.8vw, 1.5rem);
+      }
+      .intro {
+        margin: 0.42rem 0 0;
+        color: #c4d4ec;
+        line-height: 1.42;
+      }
+      .grid {
+        margin-top: 0.86rem;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.7rem;
+      }
+      .item {
+        border-radius: 12px;
+        border: 1px solid rgba(151, 171, 201, 0.22);
+        background: rgba(12, 20, 33, 0.66);
+        padding: 0.66rem 0.74rem;
+      }
+      .item h2 {
+        margin: 0;
+        font-size: 0.92rem;
+      }
+      .item p {
+        margin: 0.36rem 0 0;
+        color: #b7cae6;
+        font-size: 0.82rem;
+        line-height: 1.38;
+      }
+      .faq {
+        margin-top: 0.78rem;
+        border-top: 1px solid rgba(154, 173, 199, 0.2);
+        padding-top: 0.7rem;
+      }
+      .faq h2 {
+        margin: 0;
+        font-size: 0.96rem;
+      }
+      details {
+        margin-top: 0.5rem;
+        border-radius: 10px;
+        border: 1px solid rgba(152, 172, 203, 0.24);
+        background: rgba(9, 15, 25, 0.72);
+        padding: 0.46rem 0.58rem;
+      }
+      summary {
+        cursor: pointer;
+        font-size: 0.84rem;
+        font-weight: 600;
+      }
+      details p {
+        margin: 0.36rem 0 0;
+        color: #b5c8e3;
+        font-size: 0.8rem;
+        line-height: 1.36;
+      }
+      .back {
+        display: inline-flex;
+        margin-top: 0.9rem;
+        border-radius: 999px;
+        border: 1px solid rgba(24, 195, 255, 0.8);
+        background: rgba(24, 195, 255, 0.2);
+        color: #e7f9ff;
+        text-decoration: none;
+        padding: 0.24rem 0.72rem;
+        font-size: 0.8rem;
+      }
+      @media (max-width: 900px) {
+        .grid { grid-template-columns: 1fr; }
+      }
+    </style>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I find guitar triads quickly?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Enable a chord, select a preset, limit strings to a 3-string set, and reduce fret range to isolate compact triad shapes."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I filter chord tones by key and scale?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Turn on key and scale filtering to constrain notes and keep chord choices aligned with a selected key center."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does Chord Finder support alternate guitar tunings?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Chord Finder includes tuning presets and full custom per-string tuning."
+            }
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="card" aria-labelledby="about-heading">
+        <p class="eyebrow">Chord Finder</p>
+        <h1 id="about-heading">About Chord Finder</h1>
+        <p class="intro">
+          Chord Finder is an interactive guitar tool for mapping chord tones, triads, intervals,
+          scales, and fretboard shapes in real time.
+        </p>
+        <div class="grid">
+          <article class="item">
+            <h2>Find Chord Shapes Faster</h2>
+            <p>
+              Build major, minor, diminished, augmented, sus2, sus4, add9, add11, 6, 7, and maj7
+              voicings with immediate fretboard feedback.
+            </p>
+          </article>
+          <article class="item">
+            <h2>Train Triads by String Set</h2>
+            <p>
+              Isolate triads by string group and fret range to practice compact shapes and
+              inversion movement.
+            </p>
+          </article>
+          <article class="item">
+            <h2>Explore Tunings and Modes</h2>
+            <p>
+              Use standard and alternate tuning presets, then combine them with mode and scale
+              filters for practical neck navigation.
+            </p>
+          </article>
+        </div>
+        <section class="faq" aria-labelledby="faq-heading">
+          <h2 id="faq-heading">FAQ</h2>
+          <details>
+            <summary>How do I find guitar triads quickly?</summary>
+            <p>Enable a chord, limit strings, and narrow the fret range.</p>
+          </details>
+          <details>
+            <summary>Can I filter chord tones by key or scale?</summary>
+            <p>Yes. Enable key/scale filtering to constrain notes.</p>
+          </details>
+          <details>
+            <summary>Does this support custom tuning?</summary>
+            <p>Yes. Set tuning presets or adjust every string manually.</p>
+          </details>
+        </section>
+        <a class="back" href="/">Open Chord Finder App</a>
+      </section>
+    </main>
+  </body>
+</html>
+
