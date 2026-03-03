@@ -254,11 +254,6 @@ function App() {
     <main className="app-shell">
       <div className="ambient-glow" aria-hidden="true" />
       <section className="workspace-card">
-        <div className="top-nav">
-          <a className="about-nav-link" href="/about.html">
-            About
-          </a>
-        </div>
         <StateSummaryBar
           summary="Fretboard Filter"
           detail={stateSummary}
