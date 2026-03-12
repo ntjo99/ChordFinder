@@ -3,6 +3,7 @@ import { resolveIntervalPitchClasses, type IntervalName } from "./intervals";
 import { formatPitchClasses } from "./noteNaming";
 import {
   ALL_PITCH_CLASSES,
+  PITCH_CLASS_COUNT,
   uniqueSortedPitchClasses,
   type PitchClass,
 } from "./pitchClass";
@@ -40,6 +41,36 @@ const getIntervalReferenceRoot = (state: AppState): PitchClass | null => {
   }
 
   return null;
+};
+
+const getDisplayOrderRoot = (state: AppState): PitchClass | null => {
+  if (state.chord) {
+    return state.chord.rootPitchClass;
+  }
+
+  if (state.keyScale) {
+    return state.keyScale.rootPitchClass;
+  }
+
+  return null;
+};
+
+const sortPitchClassesFromRoot = (
+  pitchClasses: readonly PitchClass[],
+  rootPitchClass: PitchClass | null,
+): PitchClass[] => {
+  if (rootPitchClass === null) {
+    return [...pitchClasses];
+  }
+
+  return [...pitchClasses].sort((left, right) => {
+    const leftOffset =
+      (left - rootPitchClass + PITCH_CLASS_COUNT) % PITCH_CLASS_COUNT;
+    const rightOffset =
+      (right - rootPitchClass + PITCH_CLASS_COUNT) % PITCH_CLASS_COUNT;
+
+    return leftOffset - rightOffset;
+  });
 };
 
 const resolveIntervalFilterPitchClasses = (
@@ -87,8 +118,11 @@ export const computeAllowedPitchClasses = (state: AppState): PitchClass[] => {
   return uniqueSortedPitchClasses(allowed);
 };
 
-export const computeAllowedNoteNames = (state: AppState): string[] =>
-  formatPitchClasses(
+export const computeAllowedNoteNames = (state: AppState): string[] => {
+  const displayOrderedPitchClasses = sortPitchClassesFromRoot(
     computeAllowedPitchClasses(state),
-    state.noteNamingPolicy,
+    getDisplayOrderRoot(state),
   );
+
+  return formatPitchClasses(displayOrderedPitchClasses, state.noteNamingPolicy);
+};

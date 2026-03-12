@@ -49,7 +49,7 @@ describe("computeAllowedPitchClasses", () => {
     expect(computeAllowedPitchClasses(state)).toEqual([4]);
   });
 
-  it("defaults to sharp naming unless the user selects flats", () => {
+  it("orders allowed notes from the selected chord root", () => {
     const sharpsState = {
       ...createDefaultAppState(),
       chord: {
@@ -63,7 +63,27 @@ describe("computeAllowedPitchClasses", () => {
       noteNamingPolicy: "flats" as const,
     };
 
-    expect(computeAllowedNoteNames(sharpsState)).toEqual(["D", "F", "A#"]);
-    expect(computeAllowedNoteNames(flatsState)).toEqual(["D", "F", "Bb"]);
+    expect(computeAllowedNoteNames(sharpsState)).toEqual(["A#", "D", "F"]);
+    expect(computeAllowedNoteNames(flatsState)).toEqual(["Bb", "D", "F"]);
+  });
+
+  it("orders allowed notes from the selected key root when no chord is active", () => {
+    const state = {
+      ...createDefaultAppState(),
+      keyScale: {
+        rootPitchClass: 4 as const,
+        scaleType: "major" as const,
+      },
+    };
+
+    expect(computeAllowedNoteNames(state)).toEqual([
+      "E",
+      "F#",
+      "G#",
+      "A",
+      "B",
+      "C#",
+      "D#",
+    ]);
   });
 });
